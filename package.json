@@ -1,5 +1,23 @@
 {
+  "name": "wooking-for-work",
+  "version": "1.0.0",
+  "description": "Job search pipeline manager - Swedish market focus",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node scripts/seed-database.js",
+    "db:reset": "rm -f data/wooking.db && npm run seed"
+  },
   "dependencies": {
-    "playwright": "^1.60.0"
+    "better-sqlite3": "^11.7.0",
+    "express": "^5.1.0",
+    "playwright": "^1.60.0",
+    "uuid": "^11.0.3",
+    "zod": "^3.23.0"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

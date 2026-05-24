@@ -1,0 +1,32 @@
+name: wooking-for-work
+
+services:
+  app:
+    container_name: wooking-for-work
+    build: .
+    restart: unless-stopped
+    network_mode: host
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+    healthcheck:
+      test: wget -q --spider http://localhost:3002/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - ./data:/app/data

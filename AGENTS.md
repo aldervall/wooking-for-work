@@ -5,6 +5,26 @@ Three pillars: **Reactive Resume** (CV JSON truth), **AFFiNE** (docs hub), **thi
 
 ## Quick Reference
 
+### Frontend
+- Development server runs at `http://10.10.0.33:3002/`.
+- Start with `npm run dev` in `frontend/` (or see `frontend/README.md`).
+- Proxy API calls to backend `/api/` (configured in `frontend/vite.config.js`).
+- Ensure backend is running before UI interactions.
+- Common commands:
+  - `npm install` – install deps.
+  - `npm run lint && npm run typecheck` – verify before committing.
+  - `npm test` – run unit tests (if any).
+- Hot-reload works; refresh browser after backend schema changes.
+
+### Backend
+- Entry point: `src/server.js`
+- Start: `npm start` or `npm run dev` (with `--watch`)
+- API available at `http://localhost:3001/api/`
+- Database: SQLite in `data/wooking.db`
+- Seed database: `npm run seed`
+- Reset database: `npm run db:reset`
+
+
 | Key | Value |
 |-----|-------|
 | Base resume ID for dup | `[your-base-resume-id]` (from `reactive_resume_list_resumes`) |
@@ -69,5 +89,6 @@ Session flow: `initialize` → extract `mcp-session-id` header → pass to reque
 - Slugs must be unique — use `[company]-[role]-$(date +%s)`
 - Prefer MCP tools over direct curl
 - `.env` is gitignored; personal data in `resumes/tailored/` and `cover-letters/` — never commit
-- **No CI, no tests, no lint config** in this repo
+- **No CI, no tests** in this repo
+- **No lint config** in root; frontend uses `npm run lint && npm run typecheck`
 - **No SMTP/sendmail** — no code sends email
