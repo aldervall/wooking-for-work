@@ -6,3 +6,19 @@ build/
 *.log
 coverage/
 .next/
+
+# Personal data — never commit
+resumes/**/*.json
+resumes/**/*.pdf
+resumes/*.jpg
+resumes/*.jpeg
+resumes/*.png
+cover-letters/*.json
+cover-letters/*.pdf
+cover-letters/**/*.pdf
+job-evidence-*.md
+test-results/
+
+# CrewAI optimizer output
+src/resume_optimizer/output/
+src/**/__pycache__/

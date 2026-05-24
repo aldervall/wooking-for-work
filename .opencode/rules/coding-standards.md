@@ -1,21 +1,17 @@
-# Project Coding Standards
+# Coding Standards
 
 ## General
+- Prefer MCP tools over shell scripts for API calls
+- All resume JSON must validate against https://rxresu.me/schema.json
+- Never commit `.env` files or inline API keys
+- Use `{env:VAR}` syntax in `opencode.json` for secrets
 
-- Use TypeScript strict mode where possible
-- Prefer explicit types over inference
-- All API inputs must be validated with Zod schemas
-- Never commit API keys or secrets
+## File Conventions
+- JSON files: 2-space indentation
+- Markdown files: wrap at 80 chars where practical
+- Shell scripts: `set -e` at top, source `.env` for secrets
 
 ## Git
-
 - Write conventional commit messages
-- Keep PRs focused on a single feature/fix
-- Include tests for new functionality
-
-## Security
-
-- Validate all user inputs
-- Sanitize HTML content (dompurify)
-- Use auth middleware on all API routes
-- Never log sensitive data (keys, passwords)
+- Never commit API keys, passwords, or tokens
+- Keep `.env` in `.gitignore`
