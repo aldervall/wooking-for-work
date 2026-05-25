@@ -1,4 +1,5 @@
 # Wooking for Work
+![Project Screenshot](wookingforwork.png)
 
 **AI-assisted job hunting automation for the Swedish/European IT job market.**
 
@@ -39,39 +40,89 @@ A modular framework built on [opencode](https://opencode.ai) that connects React
 ## Quick Start
 
 ### 1. Clone and configure
-
-```bash
-git clone https://github.com/your-username/wooking-for-work.git
-cd wooking-for-work
-cp .env.example .env
-```
-
 ### 2. Fill in `.env`
-
-Edit `.env` with your credentials (each variable is documented inline):
-
-| Variable | How to get it |
-|----------|---------------|
-| `OPENAI_API_KEY` | [OpenAI API keys](https://platform.openai.com/api-keys) |
-| `RXRESUME_API_KEY` | RxResume Settings → API Keys |
-| `RXRESUME_API_BASE` | Your RxResume instance URL + `/api/openapi` |
-| `RXRESUME_MCP_URL` | Your RxResume instance URL + `/mcp` |
-| `AFFINE_BASE_URL` | Your AFFiNE instance (e.g. `http://localhost:3010`) |
-| `AFFINE_API_TOKEN` | AFFiNE Settings → Workspace → API Tokens |
-| `LINKEDIN_EMAIL` | Your LinkedIn email |
-| `LINKEDIN_PASSWORD` | Your LinkedIn password |
-
 ### 3. Install dependencies
+### 4. Start opencode
 
-```bash
-# CrewAI optimizer
-uv sync --directory src/resume_optimizer
+## Full Stack Development
 
-# Playwright browser for LinkedIn (required once)
-npx playwright install chromium
+This project now includes a full-stack implementation with a React frontend and Express backend.
+
+### Running the full application
+
+1. **Start the backend API server:**
+   ```bash
+   npm run dev
+   ```
+   The backend runs on `http://localhost:3001` with API endpoints at `/api/`.
+
+2. **Start the frontend development server:**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+   The frontend runs on `http://localhost:3002` and proxies API requests to the backend.
+
+3. **Access the application:**
+   - Frontend: `http://localhost:3002`
+   - Backend API: `http://localhost:3001/api/`
+   - Database: SQLite file at `data/wooking.db`
+
+### Important commands
+
+- `npm start` - Run backend in production mode
+- `npm run dev` - Run backend with watch mode
+- `npm run seed` - Seed the database with initial data
+- `npm run db:reset` - Reset database (deletes all data)
+- `cd frontend && npm run dev` - Start frontend dev server
+
+### Project structure
+
+```
+├── backend/
+│   ├── src/
+│   │   ├── api/           # API endpoints
+│   │   ├── database/      # Database setup and schema
+│   │   ├── models/        # Data models
+│   │   └── server.js      # Main server file
+│   ├── package.json       # Backend dependencies
+│   └── data/              # SQLite database files
+├── frontend/
+│   ├── src/
+│   │   ├── components/    # React components
+│   │   ├── hooks/         # Custom hooks
+│   │   ├── api.js         # API client
+│   │   └── App.jsx        # Main application
+│   ├── public/            # Static assets
+│   └── package.json       # Frontend dependencies
+├── .env.example           # Template for environment variables
+├── opencode.json          # MCP and agent configuration
+└── AGENTS.md              # Agent overview and quick reference
 ```
 
-### 4. Start opencode
+### Database
+
+The application uses SQLite with a file-based database at `data/wooking.db`. You can reset the database with:
+
+```bash
+npm run db:reset
+```
+
+This will delete the existing database and recreate it with seed data.
+
+### Environment variables
+
+In addition to the existing variables, you may need to set:
+
+- `DATABASE_URL` (optional) - Override the default SQLite database path
+- `FRONTEND_URL` (optional) - Frontend URL for CORS configuration
+
+### Development notes
+
+- The backend uses Express.js and better-sqlite3 for database access
+- The frontend uses React with Vite for fast development
+- API calls from frontend are proxied to `/api/` (configured in `frontend/vite.config.js`)
+- Hot-reload is enabled for both frontend and backend (with `--watch`)
 
 ```bash
 opencode
