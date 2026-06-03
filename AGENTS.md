@@ -91,8 +91,8 @@ PYTHONPATH=src uv run --directory src/resume_optimizer python -m resume_optimize
 ### Config
 - `OPENAI_API_KEY` in `.env` (required)
 - `OPENAI_MODEL` in `.env` (default: `gpt-4o`)
-- Agents/tasks defined in YAML (`config/agents.yaml`, `config/tasks.yaml`) — Swedish language
-- Models: Pydantic (`models.py`)
+- Agents/tasks defined in YAML (`src/resume_optimizer/src/resume_optimizer/config/agents.yaml`, `src/resume_optimizer/src/resume_optimizer/config/tasks.yaml`) — Swedish language
+- Models: Pydantic (`src/resume_optimizer/src/resume_optimizer/models.py`)
 
 ---
 
