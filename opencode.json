@@ -1,6 +1,9 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "instructions": ["AGENTS.md", ".opencode/rules/*.md"],
+  "instructions": [
+    "AGENTS.md",
+    ".opencode/rules/*.md"
+  ],
   "permission": {
     "edit": "ask",
     "bash": "ask"
@@ -8,9 +11,11 @@
   "mcp": {
     "affine": {
       "type": "local",
-      "enabled": true,
-      "description": "AFFiNE workspace — docs, databases, tags, collections",
-      "command": ["affine-mcp"],
+      "enabled": false,
+      "description": "AFFiNE workspace — docs, databases, tags, collections (disabled: set AFFINE_BASE_URL + AFFINE_API_TOKEN + AFFINE_MCP_AUTH_MODE in .env to enable)",
+      "command": [
+        "affine-mcp"
+      ],
       "environment": {
         "AFFINE_BASE_URL": "{env:AFFINE_BASE_URL}",
         "AFFINE_API_TOKEN": "{env:AFFINE_API_TOKEN}",
@@ -21,7 +26,11 @@
       "type": "local",
       "enabled": true,
       "description": "Swedish job market — search, enrich, taxonomy",
-      "command": ["npx", "-y", "arbetsformedlingen-mcp-server"]
+      "command": [
+        "npx",
+        "-y",
+        "arbetsformedlingen-mcp-server"
+      ]
     },
     "context7": {
       "type": "remote",
@@ -33,7 +42,9 @@
       "type": "local",
       "enabled": true,
       "description": "LinkedIn — profile, jobs, company, people search",
-      "command": ["scripts/linkedin-mcp.sh"],
+      "command": [
+        "scripts/linkedin-mcp.sh"
+      ],
       "environment": {
         "LINKEDIN_EMAIL": "{env:LINKEDIN_EMAIL}",
         "LINKEDIN_PASSWORD": "{env:LINKEDIN_PASSWORD}"
@@ -45,6 +56,20 @@
       "description": "RxResume — list, get, patch, duplicate resumes (OAuth)",
       "url": "{env:RXRESUME_MCP_URL}",
       "oauth": {}
+    },
+    "claude-cli": {
+      "type": "local",
+      "command": ["node", "/root/opencode/mcp-server/dist/claude-mcp.js"],
+      "enabled": true
+    },
+    "affine-workspace": {
+      "type": "streamable-http",
+      "enabled": true,
+      "description": "Read docs from AFFiNE workspace",
+      "url": "https://affine.aldervall.se/api/workspaces/ef4c1ba3-f9e4-44ae-a0a7-c71bb7828b30/mcp",
+      "headers": {
+        "Authorization": "Bearer {env:AFFINE_API_TOKEN}"
+      }
     }
   },
   "agent": {
