@@ -1,0 +1,9 @@
+=== Task 5 Evidence: Auth flow ===
+1. POST /api/auth/register { email: qa@test.se, password: secret123, name: QA User }
+   HTTP 201, Body: {"id":"bf4cb4de-ceac-48a2-8e63-e3c03241fe76","email":"qa@test.se","name":"QA User"}
+
+2. POST /api/auth/login { email: qa@test.se, password: secret123 }
+   HTTP 200, Body: {"id":"bf4cb4de-ceac-48a2-8e63-e3c03241fe76","email":"qa@test.se","name":"QA User"}
+
+3. GET /api/auth/me (with session)
+   HTTP 200, Body: {"id":"bf4cb4de-ceac-48a2-8e63-e3c03241fe76","email":"qa@test.se","name":"QA User"}

@@ -1,0 +1,5 @@
+=== Task 5 Evidence: Duplicate email ===
+POST /api/auth/register { email: qa@test.se, ... } (duplicate)
+Expected: 409
+Actual: 409
+Body: {"error":"Email already registered","code":"DUPLICATE_EMAIL"}
