@@ -1,10 +1,18 @@
+import crypto from 'crypto';
 import express from 'express';
+import session from 'express-session';
+import connectSqlite3 from 'connect-sqlite3';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import jobsRouter from './api/jobs.js';
 import activitiesRouter from './api/activities.js';
 import runsRouter from './api/runs.js';
 import staticRouter from './api/static.js';
+import profileRouter from './api/profile.js';
+import scrapeRouter from './api/scrape.js';
+import authRouter from './api/auth.js';
+
+const SQLiteStore = connectSqlite3(session);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,6 +24,19 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Session middleware
+app.use(session({
+  store: new SQLiteStore({ db: 'sessions.db', dir: path.resolve(__dirname, '../data') }),
+  secret: process.env.SESSION_SECRET || crypto.randomUUID(),
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  },
+}));
 
 // Request logging
 app.use((req, res, next) => {
@@ -38,6 +59,9 @@ app.use('/api/jobs', jobsRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/runs', runsRouter);
 app.use('/api', staticRouter);
+app.use('/api/profile', profileRouter);
+app.use('/api/scrape', scrapeRouter);
+app.use('/api/auth', authRouter);
 
 // Serve static files from public directory
 app.use(express.static(PUBLIC_DIR));

@@ -1,0 +1,9 @@
+=== EVIDENCE: Task 1 - Dependencies Installed ===
+wooking-for-work@1.0.0 /opt/wooking-for-work
+├── bcrypt@5.1.1
+├── connect-sqlite3@0.9.16
+└── express-session@1.19.0
+
+--- node --check ---
+--- Health check ---
+{"status":"ok","uptime":137908.304141947,"timestamp":"2026-06-05T12:03:58.729Z"}

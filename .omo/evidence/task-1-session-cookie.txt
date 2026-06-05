@@ -1,0 +1,3 @@
+=== EVIDENCE: Task 1 - Session Cookie ===
+Request 1: GET /health (saveUninitialized: false - no session mod)
+(no output above = no Set-Cookie, expected with saveUninitialized: false)
