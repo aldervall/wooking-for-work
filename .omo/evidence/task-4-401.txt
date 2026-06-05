@@ -1,0 +1,5 @@
+=== Task 4 Evidence: Unauthenticated API request ===
+GET /api/jobs (no cookie)
+Expected: 401
+Actual: 401
+Body: {"error":"Authentication required"}

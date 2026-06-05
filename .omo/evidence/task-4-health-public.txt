@@ -1,0 +1,5 @@
+=== Task 4 Evidence: Health endpoint public ===
+GET /health
+Expected: 200
+Actual: 200
+Body: {"status":"ok","uptime":9.519491934,"timestamp":"2026-06-05T14:10:54.128Z"}

@@ -11,6 +11,7 @@ import staticRouter from './api/static.js';
 import profileRouter from './api/profile.js';
 import scrapeRouter from './api/scrape.js';
 import authRouter from './api/auth.js';
+import { requireAuth, optionalUser } from './middleware/auth.js';
 
 const SQLiteStore = connectSqlite3(session);
 
@@ -45,6 +46,8 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(optionalUser);
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ 
@@ -54,14 +57,21 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes
+app.use('/api/auth', authRouter);
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    return requireAuth(req, res, next);
+  }
+  next();
+});
+
 app.use('/api/jobs', jobsRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/runs', runsRouter);
 app.use('/api', staticRouter);
 app.use('/api/profile', profileRouter);
 app.use('/api/scrape', scrapeRouter);
-app.use('/api/auth', authRouter);
 
 // Serve static files from public directory
 app.use(express.static(PUBLIC_DIR));
