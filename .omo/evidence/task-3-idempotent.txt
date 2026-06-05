@@ -1,0 +1,16 @@
+=== Idempotent Migration Check ===
+
+Users after 2nd run:
+1
+
+Profiles after 2nd run:
+1
+
+Jobs with NULL user_id:
+0
+
+Tokens with NULL user_id:
+0
+
+Health:
+{"status":"ok","uptime":793.587826072,"timestamp":"2026-06-05T12:23:13.335Z"}

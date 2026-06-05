@@ -1,0 +1,43 @@
+Fresh DB init:
+--- users table ---
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  name TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TRIGGER users_updated_at
+AFTER UPDATE ON users
+BEGIN
+  UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+--- profiles table (no DEFAULT 'default', has user_id NOT NULL) ---
+CREATE TABLE profiles (
+  id TEXT PRIMARY KEY,
+  linkedin_url TEXT,
+  linkedin_username TEXT,
+  linkedin_data TEXT,
+  name TEXT,
+  email TEXT,
+  phone TEXT,
+  headline TEXT,
+  location TEXT,
+  avatar_url TEXT,
+  skills TEXT,
+  preferences TEXT,
+  import_run_id TEXT,
+  status TEXT NOT NULL DEFAULT 'empty' CHECK(status IN ('empty', 'importing', 'ready')),
+  user_id TEXT NOT NULL,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TRIGGER profiles_updated_at
+
+--- jobs has user_id ---
+  user_id TEXT,
+CREATE INDEX idx_jobs_user_id ON jobs(user_id);
+
+{"status":"ok","uptime":765.041683105,"timestamp":"2026-06-05T12:22:44.788Z"}

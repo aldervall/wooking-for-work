@@ -1,0 +1,9 @@
+=== Migration Data ===
+e1f18fec-6d07-42c8-911c-d0762a558cf7|default-e1f18fec@local.dev|Niklas Aldervall
+
+d740b2c5-02d9-4e4d-a088-f9602101f8a7|Niklas Aldervall|e1f18fec-6d07-42c8-911c-d0762a558cf7
+
+Jobs migrated:
+3
+
+{"status":"ok","uptime":756.735595074,"timestamp":"2026-06-05T12:22:36.482Z"}

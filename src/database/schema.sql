@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   tailored_cv_done INTEGER DEFAULT 0,
   tailored_pb_done INTEGER DEFAULT 0,
   slug TEXT,
+  user_id TEXT,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(src, ref)
@@ -42,10 +43,10 @@ CREATE TABLE IF NOT EXISTS activities (
   FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE
 );
 
--- Runs table - Automation workflow tracking
+-- Runs table - Automation workflow tracking (job-specific runs + session-level scrapes)
 CREATE TABLE IF NOT EXISTS runs (
   id TEXT PRIMARY KEY,
-  job_id TEXT NOT NULL,
+  job_id TEXT,
   status TEXT NOT NULL DEFAULT 'queued' CHECK(status IN ('queued', 'running', 'completed', 'failed', 'cancelled')),
   started_at TEXT DEFAULT CURRENT_TIMESTAMP,
   completed_at TEXT,
@@ -54,8 +55,7 @@ CREATE TABLE IF NOT EXISTS runs (
   artifacts_cv_path TEXT,
   artifacts_pb_path TEXT,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
 -- States table - Pipeline state definitions (static reference data)
@@ -75,6 +75,63 @@ CREATE TABLE IF NOT EXISTS commands (
   cmd_group TEXT NOT NULL
 );
 
+-- Users table — multi-user accounts
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  name TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Profiles table — user's own data (imported from LinkedIn/RxResume)
+CREATE TABLE IF NOT EXISTS profiles (
+  id TEXT PRIMARY KEY,
+  linkedin_url TEXT,
+  linkedin_username TEXT,
+  linkedin_data TEXT,
+  name TEXT,
+  email TEXT,
+  phone TEXT,
+  headline TEXT,
+  location TEXT,
+  avatar_url TEXT,
+  skills TEXT,
+  preferences TEXT,
+  import_run_id TEXT,
+  status TEXT NOT NULL DEFAULT 'empty' CHECK(status IN ('empty', 'importing', 'ready')),
+  user_id TEXT NOT NULL,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TRIGGER IF NOT EXISTS profiles_updated_at
+AFTER UPDATE ON profiles
+BEGIN
+  UPDATE profiles SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+-- Tokens table — OAuth tokens for external services
+CREATE TABLE IF NOT EXISTS tokens (
+  id TEXT PRIMARY KEY,
+  provider TEXT NOT NULL,
+  access_token TEXT NOT NULL,
+  refresh_token TEXT,
+  expires_at INTEGER,
+  scope TEXT,
+  profile TEXT,
+  user_id TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TRIGGER IF NOT EXISTS tokens_updated_at
+AFTER UPDATE ON tokens
+BEGIN
+  UPDATE tokens SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_jobs_state ON jobs(state);
 CREATE INDEX IF NOT EXISTS idx_jobs_src ON jobs(src);
@@ -87,7 +144,6 @@ CREATE INDEX IF NOT EXISTS idx_activities_created_at ON activities(created_at DE
 CREATE INDEX IF NOT EXISTS idx_runs_job_id ON runs(job_id);
 CREATE INDEX IF NOT EXISTS idx_runs_status ON runs(status);
 CREATE INDEX IF NOT EXISTS idx_runs_started_at ON runs(started_at DESC);
-
 -- Triggers to auto-update updated_at timestamp
 CREATE TRIGGER IF NOT EXISTS jobs_updated_at 
 AFTER UPDATE ON jobs
@@ -99,6 +155,12 @@ CREATE TRIGGER IF NOT EXISTS runs_updated_at
 AFTER UPDATE ON runs
 BEGIN
   UPDATE runs SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS users_updated_at
+AFTER UPDATE ON users
+BEGIN
+  UPDATE users SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
 END;
 
 -- Insert default states
