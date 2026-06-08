@@ -5,9 +5,9 @@ export class ActivityModel {
   /**
    * Find all activities with optional filtering
    */
-  static findAll(filters = {}) {
-    let sql = 'SELECT * FROM activities WHERE 1=1';
-    const params = [];
+  static findAll(userId, filters = {}) {
+    let sql = 'SELECT activities.* FROM activities INNER JOIN jobs ON jobs.id = activities.job_id WHERE jobs.user_id = ?';
+    const params = [userId];
     
     if (filters.jobId) {
       sql += ' AND job_id = ?';
@@ -19,11 +19,11 @@ export class ActivityModel {
     }
     
     if (filters.month) {
-      sql += ' AND substr(created_at, 1, 7) = ?';
+      sql += ' AND substr(activities.created_at, 1, 7) = ?';
       params.push(filters.month);
     }
     
-    sql += ' ORDER BY created_at DESC';
+    sql += ' ORDER BY activities.created_at DESC';
     
     const rows = getAll(sql, params);
     return rows.map(this.deserialize);
@@ -32,15 +32,21 @@ export class ActivityModel {
   /**
    * Find single activity by ID
    */
-  static findById(id) {
-    const row = getOne('SELECT * FROM activities WHERE id = ?', [id]);
+  static findById(userId, id) {
+    const row = getOne(
+      'SELECT activities.* FROM activities INNER JOIN jobs ON jobs.id = activities.job_id WHERE activities.id = ? AND jobs.user_id = ?',
+      [id, userId]
+    );
     return row ? this.deserialize(row) : null;
   }
   
   /**
    * Create new activity
    */
-  static create(data) {
+  static create(userId, data) {
+    const job = getOne('SELECT id FROM jobs WHERE id = ? AND user_id = ?', [data.jobId, userId]);
+    if (!job) return null;
+    
     const id = data.id || `act-${randomUUID().slice(0, 8)}`;
     const now = new Date().toISOString();
     
@@ -55,14 +61,18 @@ export class ActivityModel {
       now,
     ]);
     
-    return this.findById(id);
+    return this.findById(userId, id);
   }
   
   /**
    * Delete activity
    */
-  static delete(id) {
-    runQuery('DELETE FROM activities WHERE id = ?', [id]);
+  static delete(userId, id) {
+    const result = runQuery(
+      'DELETE FROM activities WHERE id = ? AND job_id IN (SELECT id FROM jobs WHERE user_id = ?)',
+      [id, userId]
+    );
+    return result.changes > 0;
   }
   
   /**
