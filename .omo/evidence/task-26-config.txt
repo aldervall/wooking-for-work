@@ -1,0 +1,19 @@
+Task 26: Update deployment configuration for multi-user auth
+===========================================================
+Date: 2026-06-08
+
+Changes made:
+  - Added SESSION_SECRET to .env.example with generation instructions
+  - Added CREDENTIAL_ENCRYPTION_KEY to .env.example with generation instructions
+  - Verified Dockerfile compatibility (no changes needed)
+
+Verification:
+  - Docker uses node:22-alpine with better-sqlite3 build deps (python3, make, g++)
+  - Session middleware uses connect-sqlite3 with SQLite store — works in Docker
+  - No Dockerfile changes required
+
+New environment variables:
+  - SESSION_SECRET   — Random 64-char hex string for express-session signing
+  - CREDENTIAL_ENCRYPTION_KEY — AES-256-GCM key (64 hex chars = 32 bytes) for credential storage
+
+Status: DONE
