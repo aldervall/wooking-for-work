@@ -78,6 +78,11 @@ Publish the cover letter as a separate Reactive Resume document:
 
 8. **Create cover letter markdown** to `cover-letters/[company]-[role]-YYYY-MM-DD.md` with link to `https://[your-rxresume-instance]/resume/[slug]`
 
+## Auth Context
+- All Reactive Resume API calls (`reactive_resume_get_resume`, `reactive_resume_duplicate_resume`, etc.) require an active user session
+- RxResume credentials are scoped per-user in the `user_credentials` table
+- The CrewAI pipeline runs user-independent; user context is only relevant for the MCP data-gathering phase
+
 ## Critical Rules
 
 - NEVER auto-send applications — save locally for review

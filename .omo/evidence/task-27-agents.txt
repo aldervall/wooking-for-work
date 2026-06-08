@@ -1,0 +1,11 @@
+Task 27 — Multi-User Auth Context: Agent files updated
+Date: 2026-06-08
+
+Updated files:
+- .opencode/agents/job-scraper.md — Added auth context note: jobs linked to current user
+- .opencode/agents/resume-tailor.md — Added auth context: per-user RxResume credentials, session required
+- .opencode/agents/resume-optimizer.md — Added auth context: API calls require user session
+- .opencode/agents/affine-docs.md — Added minimal user context mention
+- .opencode/agents/research.md — Added minimal user context mention
+
+Verification: grep -l "user" .opencode/agents/*.md | wc -l = 5

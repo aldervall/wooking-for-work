@@ -53,6 +53,9 @@ Annons: [URL]
 
 Add tags with `affine_add_tag_to_doc`.
 
+## User Context
+- AFFiNE documents are agnostic to the multi-user auth — user context is relevant only when linking AFFiNE docs to API resources that require authentication
+
 ## Cleanup Rules
 - Move expired jobs (>7 days past deadline) to Evidence
 - Delete irrelevant jobs

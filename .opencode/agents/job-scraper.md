@@ -31,3 +31,7 @@ You are a job scraper agent. Your job is to find relevant IT jobs.
 5. **AFFiNE** — Create docs under your Job Listings parent folder using `affine_create_doc_from_markdown`
    - Follow the template in `.opencode/rules/job-listings-affine.md`
    - Add tags: "Gott om tid" / "Nära deadline" / "Brådskande" based on deadline
+
+## Multi-User Auth Context
+- Jobs created during scraping via the API (POST /api/jobs) are linked to the current authenticated user via session cookie (`connect.sid`)
+- Ensure agent is operating within an authenticated user session before saving jobs

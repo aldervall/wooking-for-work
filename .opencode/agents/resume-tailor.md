@@ -49,6 +49,11 @@ Publish the cover letter as a separate Reactive Resume document in the same form
 
 7. **Create markdown** to `cover-letters/[company]-[role]-YYYY-MM-DD.md` with link to `https://[your-rxresume-instance]/resume/[slug]`
 
+## Auth Context
+- RxResume API credentials (API keys) are stored per-user in the `user_credentials` table (AES-256-GCM encrypted)
+- All Reactive Resume MCP operations (`reactive_resume_*`) require an active user session — they use session cookies for authentication
+- Credentials can be managed via the credentials API endpoint if needed
+
 ## Critical Rules
 - NEVER auto-send applications — save locally for review
 - CV slug: `[company]-[role]-$(date +%s)` — Personligt brev slug: `pb-[company]-[role]-$(date +%s)`
