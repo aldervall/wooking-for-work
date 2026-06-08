@@ -1,0 +1,18 @@
+Task 28: Update AGENTS.md with auth setup
+Status: Complete
+
+Changes made to AGENTS.md:
+- Added "Authentication" section after "MCP Authentication & Quirks"
+- Documents auth routes: register, login, logout, me
+- Includes curl examples for register and login
+- Session cookie details: connect.sid, httpOnly, sameSite lax, 7-day expiry
+- Auth middleware: requireAuth (401 on missing), optionalUser (sets req.currentUser)
+- Data scoping: all resources (jobs, activities, runs, profiles, tokens, credentials) scoped to user_id
+- Credential encryption: AES-256-GCM via CREDENTIAL_ENCRYPTION_KEY
+- Env vars: SESSION_SECRET, CREDENTIAL_ENCRYPTION_KEY
+- Integration test: bash scripts/test-auth-flow.sh (29 tests)
+- grep -c "auth|register|login" AGENTS.md = 20
+
+Files staged:
+- AGENTS.md
+- .omo/evidence/task-28-agents-md.txt
