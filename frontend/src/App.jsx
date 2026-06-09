@@ -182,7 +182,8 @@ export default function App() {
   if (jobsError || staticError) return <ErrorView error={jobsError || staticError} />;
 
   const needsOnboarding = !profile || profile.status === 'empty' || profile.status === 'importing';
-  const handleOnboardingDone = () => {
+  const handleOnboardingDone = async () => {
+    if (profile?.status !== 'ready') await updateProfile({ status: 'ready' });
     location.hash = 'dashboard';
   };
 
