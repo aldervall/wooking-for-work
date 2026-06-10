@@ -1,5 +1,9 @@
-// Main app shell — Wooking for Work
+// Main app shell — Wooking for Work (Migrated to use shared component library)
 const { useState: aS, useEffect: aE, useMemo: aM, useCallback: aC } = React;
+
+// Import shared components from the modern frontend
+// These are now available as ES modules + window globals
+const { EnhancedTopBar, EnhancedSidebar, ToastStack } = window.WK_SHARED || {};
 
 function App() {
   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -196,8 +200,9 @@ function App() {
 
   return (
     <div className="app">
-      <TopBar onPalette={() => setPaletteOpen(true)} counts={counts} go={go} query={query} setQuery={setQuery} />
-      <Sidebar view={view} go={go} counts={counts} />
+      <EnhancedTopBar onPalette={() => setPaletteOpen(true)} counts={counts} go={go} query={query} setQuery={setQuery}
+        reportProgress={{ month: 'MAJ', completed: 9, total: 12, status: 'on track' }} />
+      <EnhancedSidebar view={view} go={go} counts={counts} states={states} />
       <main className="main">
         {view === 'pipeline' && (
           <React.Fragment>
@@ -344,89 +349,7 @@ function hexToTint(hex, lightness) {
   }
 }
 
-function TopBar({ onPalette, counts, go, query, setQuery }) {
-  return (
-    <header className="topbar" data-screen-label="Top bar">
-      <div className="brand">
-        <div className="brand-mark" />
-        <div className="brand-name">Wooking <span className="accent">for Work</span></div>
-      </div>
-
-      <div className="qmeter" title="Aktivitetsrapport progress · maj 2026">
-        <span className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>MAJ</span>
-        <b>9</b>
-        <span style={{ color: 'var(--ink-3)' }}>/ 12</span>
-        <span className="qmeter-bar" />
-        <span className="ok">on track</span>
-      </div>
-
-      <div className="cmdk" onClick={onPalette}>
-        <span style={{ color: 'var(--ink-3)' }}>⌕</span>
-        <span style={{ flex: 1 }}>Quick command, search, jump…</span>
-        <span><span className="kbd">⌘</span><span className="kbd">K</span></span>
-      </div>
-
-      <div className="right">
-        <span className="muted" style={{ fontSize: 12 }}>niklas@aldervall.se</span>
-        <span className="avatar">NA</span>
-      </div>
-    </header>
-  );
-}
-
-function Sidebar({ view, go, counts }) {
-  const item = (id, glyph, label, count, badge) => (
-    <div className={'side-item' + (view === id ? ' active' : '')} onClick={() => go(id)}>
-      <span className="glyph">{glyph}</span>
-      <span>{label}</span>
-      {count != null && <span className="count">{count}</span>}
-      {badge}
-    </div>
-  );
-  return (
-    <aside className="sidebar" data-screen-label="Sidebar">
-      <div className="side-group">
-        <h4>Workspace</h4>
-        {item('pipeline', '◫', 'Pipeline', counts.all)}
-        {item('inbox', '☰', 'Inbox', counts.scraped + counts.shortlist)}
-        {item('atlas', '◎', 'Atlas', null)}
-        {item('report', '✎', 'Aktivitetsrapport', null, <span className="pill warning" style={{ fontSize: 10, padding: '0 6px', marginLeft: 6 }}>2d</span>)}
-        {item('runs', '⟲', 'Runs', null)}
-      </div>
-
-      <div className="side-group">
-        <h4>States</h4>
-        <div className="side-item"><span className="dot" style={{ background: 'var(--ink-4)' }} /><span>Scraped</span><span className="count">{counts.scraped}</span></div>
-        <div className="side-item"><span className="dot" style={{ background: 'var(--accent)' }} /><span>Shortlist</span><span className="count">{counts.shortlist}</span></div>
-        <div className="side-item"><span className="dot" style={{ background: 'var(--info)' }} /><span>Tailored</span><span className="count">{counts.tailored}</span></div>
-        <div className="side-item"><span className="dot" style={{ background: 'var(--success)' }} /><span>Submitted</span><span className="count">{counts.submitted}</span></div>
-        <div className="side-item"><span className="dot" style={{ background: 'var(--warning)' }} /><span>Replied</span><span className="count">{counts.replied}</span></div>
-      </div>
-
-      <div className="side-group">
-        <h4>Saved searches</h4>
-        <div className="side-item"><span className="glyph">⌕</span><span>Remote IT-chef · SE</span></div>
-        <div className="side-item"><span className="glyph">⌕</span><span>≤60km Sala · IT</span></div>
-        <div className="side-item"><span className="glyph">⌕</span><span>Linux + Python</span></div>
-        <div className="side-item muted-2"><span className="glyph">＋</span><span>New search</span></div>
-      </div>
-
-      <div className="side-group">
-        <h4>Sources</h4>
-        <div className="side-item"><span className="src-chip AF" style={{ width: 16, height: 16, fontSize: 8 }}>AF</span><span>Arbetsförmedlingen</span><span className="count">21</span></div>
-        <div className="side-item"><span className="src-chip LinkedIn" style={{ width: 16, height: 16, fontSize: 8 }}>in</span><span>LinkedIn</span><span className="count">18</span></div>
-        <div className="side-item"><span className="src-chip Wise" style={{ width: 16, height: 16, fontSize: 8 }}>WI</span><span>Wise.se</span><span className="count">8</span></div>
-      </div>
-
-      <div style={{ flex: 1 }} />
-
-      <div className="side-group">
-        <div className="side-item" onClick={() => go('settings')}><span className="glyph">⚙</span><span>Settings</span></div>
-        <div className="side-item" style={{ color: 'var(--ink-3)', fontSize: 11.5 }}><span className="glyph">⊝</span><span>Submit ON · kill switch off</span></div>
-      </div>
-    </aside>
-  );
-}
+// Legacy component definitions removed - now using shared component library via window.WK_SHARED
 
 function RunsView({ openRun, jobs }) {
   const submitted = jobs.filter(j => j.state === 'submitted' || j.state === 'replied');
@@ -531,18 +454,7 @@ function IntegrationCard({ name, status, detail, host }) {
   );
 }
 
-function ToastStack({ toasts }) {
-  return (
-    <div className="toast-stack">
-      {toasts.map(t => (
-        <div className="toast" key={t.id}>
-          <div className="head">{t.head}</div>
-          <div style={{ color: 'rgba(255,255,255,0.75)' }}>{t.body}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
+// Legacy component definitions removed - now using shared component library via window.WK_SHARED
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);

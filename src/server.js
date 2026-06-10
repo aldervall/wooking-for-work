@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { readFileSync, existsSync } from 'fs';
 import express from 'express';
 import session from 'express-session';
 import connectSqlite3 from 'connect-sqlite3';
@@ -11,6 +12,7 @@ import staticRouter from './api/static.js';
 import profileRouter from './api/profile.js';
 import scrapeRouter from './api/scrape.js';
 import authRouter from './api/auth.js';
+import credentialsRouter from './api/credentials.js';
 import { requireAuth, optionalUser } from './middleware/auth.js';
 
 const SQLiteStore = connectSqlite3(session);
@@ -19,6 +21,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PUBLIC_DIR = path.resolve(__dirname, '../public');
 const PORT = parseInt(process.env.PORT, 10) || 3002;
+
+// Load .env for local dev (CREDENTIAL_ENCRYPTION_KEY, etc.)
+const envPath = path.resolve(__dirname, '../.env');
+if (existsSync(envPath) && !process.env.CREDENTIAL_ENCRYPTION_KEY) {
+  const envContent = readFileSync(envPath, 'utf-8');
+  const match = envContent.match(/^CREDENTIAL_ENCRYPTION_KEY=(.+)$/m);
+  if (match) {
+    process.env.CREDENTIAL_ENCRYPTION_KEY = match[1].trim();
+  }
+}
 
 const app = express();
 
@@ -59,6 +71,9 @@ app.get('/health', (req, res) => {
 
 app.use('/api/auth', authRouter);
 
+// Static reference data — no auth required
+app.use('/api', staticRouter);
+
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
     return requireAuth(req, res, next);
@@ -69,7 +84,7 @@ app.use((req, res, next) => {
 app.use('/api/jobs', jobsRouter);
 app.use('/api/activities', activitiesRouter);
 app.use('/api/runs', runsRouter);
-app.use('/api', staticRouter);
+app.use('/api/credentials', credentialsRouter);
 app.use('/api/profile', profileRouter);
 app.use('/api/scrape', scrapeRouter);
 

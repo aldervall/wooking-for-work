@@ -1,0 +1,177 @@
+analyze_job_task:
+  description: >
+    Analysera platsannonsen från Arbetsförmedlingen och poängsätt matchningen
+    mot Niklas CV. Data finns i fälten {job_listing} (full annonstext),
+    {job_enrichment} (extraherade kompetenser från AF), och {resume} (CV som JSON).
+
+    1. Extrahera krav från annonsen:
+       - Tekniska kompetenser (obligatoriska vs meriterande)
+       - Personliga egenskaper (mjuka färdigheter)
+       - Erfarenhetsnivåer och år
+       - Utbildningskrav och certifieringar
+       - Språkkrav (svenska, engelska)
+       - Anställningsform (Heltid/Deltid) och omfattning
+
+    2. Poängsätt Tekniska kompetenser (35% av total):
+       - För varje efterfrågad kompetens:
+         * Match Level (0-1): Hur väl matchar Niklas erfarenhet?
+         * Years Experience: Jämför med efterfrågade år
+         * Context Score: Hur relevant är kompetensanvändningen?
+       - Beräkna viktat medelvärde baserat på kompetensens betydelse
+
+    3. Poängsätt Mjuka färdigheter (20% av total):
+       - Identifiera personliga egenskaper från CVt
+       - Jämför mot platsannonsens krav
+       - Bedöm sammanhang och demonstration av förmågor
+
+    4. Poängsätt Erfarenhet (25% av total):
+       - Relevanta års erfarenhet
+       - Rollikhet
+       - Branschrelevans
+       - Projektomfattning och komplexitet
+
+    5. Poängsätt Utbildning (10% av total):
+       - Utbildningsnivå
+       - Relevans för tjänsten
+       - Certifieringar
+
+    6. Poängsätt Branschkunskap (10% av total):
+       - År i liknande bransch
+       - Domänexpertis
+       - Branschspecifika prestationer
+
+    7. Beräkna totalpoäng:
+       - Viktat medelvärde av alla komponenter
+       - Identifiera styrkor och luckor
+       - Detaljerad förklaring av poängsättningen
+
+  expected_output: >
+    Strukturerad JSON-data med jobbanalys och poängsättning enligt
+    JobRequirements-modellen.
+  agent: job_analyzer
+
+optimize_resume_task:
+  description: >
+    Granska Niklas CV mot jobbanalysen och skapa strukturerade optimeringsförslag.
+    CV-data finns i {resume} och jobbanalysen är tillgänglig som kontext.
+
+    1. Innehållsanalys:
+       - Jämför CV-innehåll med jobbkraven
+       - Identifiera saknade nyckelord och kompetenser
+       - Analysera prestationsbeskrivningar
+       - Kontrollera ATS-kompatibilitet
+
+    2. Strukturgranskning:
+       - Utvärdera sektionsorganisation
+       - Kontrollera formatkonsistens
+       - Bedöm informationshierarki
+       - Verifiera kontaktuppgifter
+
+    3. Generera förslag:
+       - Innehållsförbättringar med före/efter-exempel
+       - Kompetenser att lyfta fram baserat på jobbmatchning
+       - Prestationer att lägga till eller modifiera
+       - ATS-optimeringsrekommendationer
+       - Förslag på omordning av erfarenhetsposter
+
+  expected_output: >
+    Strukturerad JSON-data med detaljerade optimeringsförslag enligt
+    ResumeOptimization-modellen.
+  agent: resume_analyzer
+  context: [analyze_job_task]
+
+research_company_task:
+  description: >
+    Forska om företaget {company_name} och förbered en omfattande analys.
+    Företagsdata från LinkedIn finns i {company_data}. Jobbanalysen och
+    optimeringsförslagen finns som kontext.
+
+    1. Företagsöversikt:
+       - Senaste utvecklingen och nyheter
+       - Företagskultur och värderingar (svenska perspektivet)
+       - Marknadsposition i Sverige/norden
+       - Tillväxtbana
+
+    2. Intervjuförberedelse:
+       - Vanliga intervjufrågor för svenska IT-roller
+       - Företagsspecifika ämnen
+       - Nyckelprojekt eller initiativ
+       - Viktiga samtalspunkter
+
+  expected_output: >
+    Strukturerad JSON-data med företagsresearch enligt CompanyResearch-modellen.
+  agent: company_researcher
+  context: [analyze_job_task, optimize_resume_task]
+
+generate_patches_task:
+  description: >
+    Skapa JSON Patch-operationer (RFC 6902) för att optimera CVt i Reactive Resume.
+    Använd optimeringsförslagen från tidigare steg för att generera exakta patchar.
+
+    Tänk på:
+    - Alla patchar måste följa Reactive Resume JSON-schemat
+    - Använd "replace" för att uppdatera /basics/headline och /summary
+    - Använd "add" med "-" i path för att lägga till i arrayer
+    - Använd "remove" för att ta bort irrelevanta poster
+    - Var försiktig med förändringar — gör bara meningsfulla förbättringar
+    - bibehåll samma språk (svenska) genom hela CVt
+
+    Mål-CV-struktur (Reactive Resume):
+    - /basics/headline — Jobbspecifik titel
+    - /basics/summary — Skräddarsydd professionell sammanfattning (HTML)
+    - /sections/experience/items — Omordnade efter relevans
+    - /sections/skills/items — Uppdaterade med jobbets nyckelord
+
+  expected_output: >
+    En lista av JSON Patch-operationer enligt ResumePatches-modellen,
+    med operations, summary och target_resume_name.
+  agent: resume_writer
+  context: [optimize_resume_task, analyze_job_task, research_company_task]
+
+generate_report_task:
+  description: >
+    Skapa en sammanfattande rapport på svenska med data från tidigare steg.
+    Använd korrekt markdown (utan kodblock).
+
+    1. Dataintegration:
+       - Jobbanalys och poäng
+       - CV-optimeringsdetaljer
+       - Företagsresearch-insikter
+       - Planerade JSON Patch-förändringar
+
+    2. Rapportsektioner:
+       ## Sammanfattning
+       - Total matchpoäng och snabba vinster
+       - Viktigaste styrkorna och förbättringsområdena
+       - Prioriterad åtgärdslista
+
+       ## Jobbfit-analys
+       - Detaljerad poängfördelning
+       - Kompetensmatchning
+       - Erfarenhetsanpassning
+
+       ## Optimeringsöversikt
+       - Viktigaste CV-förbättringarna
+       - ATS-optimeringsresultat
+
+       ## Företagsinsikter
+       - Kulturpassning
+       - Intervjutips
+       - Viktiga samtalspunkter
+
+       ## Nästa steg
+       - Prioriterade åtgärder
+       - Kompetensutvecklingsplan
+       - Ansökningsstrategi
+
+    3. Format:
+       - Korrekt markdown
+       - Anpassad för AFFiNE publicering
+       - Punktlistor för läsbarhet
+       - Tydliga sektioner
+
+  expected_output: >
+    En omfattande markdown-rapport som kombinerar alla analyser till ett
+    handlingsinriktat dokument med konkreta nästa steg.
+  agent: report_generator
+  context: [analyze_job_task, optimize_resume_task, research_company_task, generate_patches_task]

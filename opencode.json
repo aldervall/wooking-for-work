@@ -12,7 +12,7 @@
     "affine": {
       "type": "local",
       "enabled": false,
-      "description": "AFFiNE workspace — docs, databases, tags, collections (disabled: set AFFINE_BASE_URL + AFFINE_API_TOKEN + AFFINE_MCP_AUTH_MODE in .env to enable)",
+      "description": "AFFiNE workspace — docs, databases, tags, collections (set AFFINE_* env vars in .env to enable)",
       "command": [
         "affine-mcp"
       ],
@@ -53,9 +53,11 @@
     "reactive-resume": {
       "type": "remote",
       "enabled": true,
-      "description": "RxResume — list, get, patch, duplicate resumes (OAuth)",
-      "url": "{env:RXRESUME_MCP_URL}",
-      "oauth": {}
+      "description": "RxResume — list, get, patch, duplicate resumes (API Key)",
+      "url": "https://resume.aldervall.se/mcp",
+      "headers": {
+        "x-api-key": "ixCnogdppfgJGHzLcSKNDpyIuNrkUncbGaVfShAMdYOstPKVlQywKMsnLMzPfYeg"
+      }
     },
     "claude-cli": {
       "type": "local",

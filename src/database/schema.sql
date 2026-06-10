@@ -132,6 +132,27 @@ BEGIN
   UPDATE tokens SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
 END;
 
+-- User credentials table — per-user encrypted API keys/tokens for external services
+CREATE TABLE IF NOT EXISTS user_credentials (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  provider TEXT NOT NULL,
+  encrypted_value TEXT NOT NULL,
+  metadata TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, provider),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TRIGGER IF NOT EXISTS user_credentials_updated_at
+AFTER UPDATE ON user_credentials
+BEGIN
+  UPDATE user_credentials SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
+CREATE INDEX IF NOT EXISTS idx_user_credentials_user_id ON user_credentials(user_id);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_jobs_state ON jobs(state);
 CREATE INDEX IF NOT EXISTS idx_jobs_src ON jobs(src);

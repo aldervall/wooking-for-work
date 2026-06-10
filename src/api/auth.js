@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import { v4 as uuid } from 'uuid';
 import { registerUser, authenticateUser } from '../services/auth-service.js';
-import { getOAuthUrl, handleCallback, getValidToken } from '../services/linkedin-api.js';
+import { getOAuthUrl, handleCallback, getValidToken, storeOAuthState, consumeOAuthState } from '../services/linkedin-api.js';
 
 const router = Router();
 
@@ -14,7 +13,10 @@ router.post('/register', (req, res) => {
     }
     const user = registerUser(email, password, name);
     req.session.userId = user.id;
-    res.status(201).json(user);
+    req.session.save((err) => {
+      if (err) console.error('Session save error:', err);
+      res.status(201).json(user);
+    });
   } catch (err) {
     if (err.status) {
       return res.status(err.status).json({ error: err.message, code: err.code });
@@ -42,6 +44,12 @@ router.post('/login', async (req, res) => {
       });
     });
     req.session.userId = user.id;
+    await new Promise((resolve, reject) => {
+      req.session.save((err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
     res.json(user);
   } catch (err) {
     console.error('Login error:', err);
@@ -69,7 +77,7 @@ router.get('/me', (req, res) => {
 
 // LinkedIn OAuth
 router.get('/linkedin', (req, res) => {
-  const state = uuid();
+  const state = storeOAuthState(req.currentUser?.id || null);
   const url = getOAuthUrl(state);
   if (!url) {
     return res.status(400).json({ error: 'LinkedIn OAuth not configured — set LINKEDIN_CLIENT_ID in .env' });
@@ -78,7 +86,7 @@ router.get('/linkedin', (req, res) => {
 });
 
 router.get('/linkedin/callback', async (req, res) => {
-  const { code, error } = req.query;
+  const { code, error, state } = req.query;
   if (error) {
     return res.status(400).send(`<script>window.opener?.postMessage({ type: 'linkedin-oauth', error: '${error}' }, '*'); window.close();</script><p>LinkedIn auth failed (${error}). You can close this tab.</p>`);
   }
@@ -86,8 +94,12 @@ router.get('/linkedin/callback', async (req, res) => {
     return res.status(400).send('Missing authorization code');
   }
 
+  // Recover userId from OAuth state
+  const oauthState = consumeOAuthState(state);
+  const userId = oauthState?.userId || null;
+
   try {
-    const profile = await handleCallback(code);
+    const profile = await handleCallback(code, userId);
     res.send(`<script>window.opener?.postMessage({ type: 'linkedin-oauth', ok: true, name: '${profile.name || ''}' }, '*'); window.close();</script>
       <p>LinkedIn connected! You can close this tab.</p>
       <style>body{font-family:sans-serif;padding:40px;text-align:center;color:#333}p{font-size:16px}</style>`);
@@ -99,7 +111,7 @@ router.get('/linkedin/callback', async (req, res) => {
 });
 
 router.get('/linkedin/status', async (req, res) => {
-  const token = await getValidToken();
+  const token = await getValidToken(req.currentUser?.id);
   res.json({ connected: !!token });
 });
 

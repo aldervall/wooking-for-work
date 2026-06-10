@@ -5,9 +5,9 @@ export class JobModel {
   /**
    * Find all jobs with optional filtering
    */
-  static findAll(filters = {}) {
-    let sql = 'SELECT * FROM jobs WHERE 1=1';
-    const params = [];
+  static findAll(filters = {}, userId) {
+    let sql = 'SELECT * FROM jobs WHERE user_id = ?';
+    const params = [userId];
     
     if (filters.state) {
       sql += ' AND state = ?';
@@ -48,15 +48,15 @@ export class JobModel {
   /**
    * Find single job by ID
    */
-  static findById(id) {
-    const row = getOne('SELECT * FROM jobs WHERE id = ?', [id]);
+  static findById(id, userId) {
+    const row = getOne('SELECT * FROM jobs WHERE id = ? AND user_id = ?', [id, userId]);
     return row ? this.deserialize(row) : null;
   }
   
   /**
    * Create new job
    */
-  static create(data) {
+  static create(data, userId) {
     const id = data.id || `j-${randomUUID().slice(0, 8)}`;
     const now = new Date().toISOString();
     
@@ -64,8 +64,8 @@ export class JobModel {
       INSERT INTO jobs (
         id, src, ref, title, employer, location, distance,
         language, remote, posted_days, match, state, salary,
-        closing, excerpt, skills, url, tags, scraped_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        closing, excerpt, skills, url, tags, scraped_at, user_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       id,
       data.src,
@@ -86,15 +86,16 @@ export class JobModel {
       data.url,
       JSON.stringify(data.tags || []),
       now,
+      userId,
     ]);
     
-    return this.findById(id);
+    return this.findById(id, userId);
   }
   
   /**
    * Update existing job
    */
-  static update(id, updates) {
+  static update(id, updates, userId) {
     const allowed = [
       'state', 'match', 'salary', 'closing', 'excerpt',
       'submitted_at', 'replied_at', 'tailored_cv_done',
@@ -131,23 +132,23 @@ export class JobModel {
     }
     
     if (sets.length === 0) {
-      return this.findById(id);
+      return this.findById(id, userId);
     }
     
-    params.push(id);
+    params.push(id, userId);
     runQuery(
-      `UPDATE jobs SET ${sets.join(', ')} WHERE id = ?`,
+      `UPDATE jobs SET ${sets.join(', ')} WHERE id = ? AND user_id = ?`,
       params
     );
     
-    return this.findById(id);
+    return this.findById(id, userId);
   }
   
   /**
    * Delete job
    */
-  static delete(id) {
-    runQuery('DELETE FROM jobs WHERE id = ?', [id]);
+  static delete(id, userId) {
+    runQuery('DELETE FROM jobs WHERE id = ? AND user_id = ?', [id, userId]);
   }
   
   /**

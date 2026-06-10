@@ -3,10 +3,10 @@ import { RunModel } from '../models/Run.js';
 
 const router = express.Router();
 
-// GET /api/runs - List all runs with optional filters
+// GET /api/runs - List all runs with optional filters (scoped to user)
 router.get('/', (req, res, next) => {
   try {
-    const runs = RunModel.findAll(req.query);
+    const runs = RunModel.findAll(req.query, req.currentUser?.id);
     res.json({
       runs,
       count: runs.length,
@@ -19,7 +19,7 @@ router.get('/', (req, res, next) => {
 // GET /api/runs/:id - Get single run
 router.get('/:id', (req, res, next) => {
   try {
-    const run = RunModel.findById(req.params.id);
+    const run = RunModel.findById(req.params.id, req.currentUser?.id);
     if (!run) {
       return res.status(404).json({
         error: 'Run not found',
@@ -35,7 +35,7 @@ router.get('/:id', (req, res, next) => {
 // POST /api/runs - Create new run
 router.post('/', (req, res, next) => {
   try {
-    const run = RunModel.create(req.body);
+    const run = RunModel.create(req.body, req.currentUser?.id);
     res.status(201).json({ run });
   } catch (err) {
     next(err);
@@ -45,7 +45,7 @@ router.post('/', (req, res, next) => {
 // PATCH /api/runs/:id - Update run
 router.patch('/:id', (req, res, next) => {
   try {
-    const run = RunModel.update(req.params.id, req.body);
+    const run = RunModel.update(req.params.id, req.body, req.currentUser?.id);
     if (!run) {
       return res.status(404).json({
         error: 'Run not found',
@@ -61,7 +61,7 @@ router.patch('/:id', (req, res, next) => {
 // DELETE /api/runs/:id - Delete run
 router.delete('/:id', (req, res, next) => {
   try {
-    RunModel.delete(req.params.id);
+    RunModel.delete(req.params.id, req.currentUser?.id);
     res.status(204).send();
   } catch (err) {
     next(err);

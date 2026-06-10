@@ -19,6 +19,29 @@ cover-letters/**/*.pdf
 job-evidence-*.md
 test-results/
 
+# Database files
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/*.db.bak
+data/sessions.db
+data/test-sessions.db
+
+# Personal job application data
+cover-letters/*.md
+job-listings/
+
+# Internal planning artifacts
+.omo/
+
+# Development artifacts
+FRONTEND_MIGRATION_SUMMARY.md
+*.backup
+*.bak
+
+# Lock files (generated)
+src/resume_optimizer/uv.lock
+
 # CrewAI optimizer output
 src/resume_optimizer/output/
 src/**/__pycache__/

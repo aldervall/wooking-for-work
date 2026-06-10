@@ -18,6 +18,11 @@ export function registerUser(email, password, name) {
   const id = crypto.randomUUID();
   const passwordHash = bcrypt.hashSync(password, 10);
   db.prepare('INSERT INTO users (id, email, password_hash, name) VALUES (?, ?, ?, ?)').run(id, email, passwordHash, name || null);
+
+  const profileId = crypto.randomUUID();
+  const profileName = name || email.split('@')[0];
+  db.prepare('INSERT INTO profiles (id, user_id, name, email, status) VALUES (?, ?, ?, ?, ?)').run(profileId, id, profileName, email, 'empty');
+
   return { id, email, name: name || null };
 }
 

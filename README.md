@@ -46,55 +46,66 @@ A modular framework built on [opencode](https://opencode.ai) that connects React
 
 ## Full Stack Development
 
-This project now includes a full-stack implementation with a React frontend and Express backend.
+The project has two frontend modes: a legacy runtime-Babel SPA in `public/` and a modern Vite+React build pipeline in `frontend/`.
 
-### Running the full application
+### Running both backend + frontend (recommended)
 
-1. **Start the backend API server:**
-   ```bash
-   npm run dev
-   ```
-   The backend runs on `http://localhost:3001` with API endpoints at `/api/`.
+```bash
+npm run dev:full
+```
 
-2. **Start the frontend development server:**
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-   The frontend runs on `http://localhost:3002` and proxies API requests to the backend.
+Starts backend (`:3002`) and Vite frontend (`:5173`) concurrently with HMR.
 
-3. **Access the application:**
-   - Frontend: `http://localhost:3002`
-   - Backend API: `http://localhost:3001/api/`
-   - Database: SQLite file at `data/wooking.db`
+### Running individually
 
-### Important commands
+```bash
+npm run dev              # Backend only — serves legacy SPA from public/
+npm run frontend:dev     # Vite frontend only (needs backend running)
+```
 
-- `npm start` - Run backend in production mode
-- `npm run dev` - Run backend with watch mode
-- `npm run seed` - Seed the database with initial data
-- `npm run db:reset` - Reset database (deletes all data)
-- `cd frontend && npm run dev` - Start frontend dev server
+### Building for production
+
+```bash
+npm run frontend:build   # Outputs to frontend/dist/
+```
+
+Then copy `frontend/dist/` into `public/` to replace the legacy SPA, or serve `frontend/dist/` separately.
+
+### Quick reference
+
+| Command | What it does |
+|---------|-------------|
+| `npm start` | Run backend in production mode |
+| `npm run dev` | Run backend with watch mode |
+| `npm run frontend:dev` | Vite dev server (port 5173) |
+| `npm run frontend:build` | Build Vite frontend to `frontend/dist/` |
+| `npm run dev:full` | Backend + frontend concurrently |
+| `npm run seed` | Seed the database with initial data |
+| `npm run db:reset` | Reset database (deletes all data) |
 
 ### Project structure
 
 ```
-├── backend/
-│   ├── src/
-│   │   ├── api/           # API endpoints
-│   │   ├── database/      # Database setup and schema
-│   │   ├── models/        # Data models
-│   │   └── server.js      # Main server file
-│   ├── package.json       # Backend dependencies
-│   └── data/              # SQLite database files
-├── frontend/
+├── src/                   # Backend source
+│   ├── api/               # API endpoints
+│   ├── database/          # Database setup and schema
+│   ├── models/            # Data models
+│   └── server.js          # Main server file (port 3002)
+├── public/                # Legacy runtime-Babel SPA
+│   ├── css/styles.css     # Shared stylesheet
+│   ├── js/*.jsx           # Babel-transpiled components
+│   └── index.html         # App shell (React 18 + Babel standalone)
+├── frontend/              # Modern Vite+React frontend
 │   ├── src/
 │   │   ├── components/    # React components
-│   │   ├── hooks/         # Custom hooks
-│   │   ├── api.js         # API client
-│   │   └── App.jsx        # Main application
-│   ├── public/            # Static assets
-│   └── package.json       # Frontend dependencies
+│   │   ├── api.js         # API client (ES module)
+│   │   ├── hooks.js       # React hooks
+│   │   ├── App.jsx        # Main application
+│   │   └── main.jsx       # Entry point
+│   ├── index.html         # Vite entry
+│   ├── vite.config.js     # Dev server + proxy config
+│   └── package.json       # Vite + React deps
+├── data/                  # SQLite database files
 ├── .env.example           # Template for environment variables
 ├── opencode.json          # MCP and agent configuration
 └── AGENTS.md              # Agent overview and quick reference
@@ -102,27 +113,25 @@ This project now includes a full-stack implementation with a React frontend and 
 
 ### Database
 
-The application uses SQLite with a file-based database at `data/wooking.db`. You can reset the database with:
+The application uses SQLite with a file-based database at `data/wooking.db`. Schema auto-initializes on first start. Reset with:
 
 ```bash
 npm run db:reset
 ```
 
-This will delete the existing database and recreate it with seed data.
-
 ### Environment variables
 
-In addition to the existing variables, you may need to set:
+In addition to the MCP variables, you may set:
 
-- `DATABASE_URL` (optional) - Override the default SQLite database path
-- `FRONTEND_URL` (optional) - Frontend URL for CORS configuration
+- `PORT` (optional) - Backend port (default: `3002`)
 
 ### Development notes
 
-- The backend uses Express.js and better-sqlite3 for database access
-- The frontend uses React with Vite for fast development
-- API calls from frontend are proxied to `/api/` (configured in `frontend/vite.config.js`)
-- Hot-reload is enabled for both frontend and backend (with `--watch`)
+- Backend at `localhost:3002`, Vite frontend at `localhost:5173`
+- Vite proxies `/api/*` to backend (`vite.config.js`)
+- Legacy SPA (`public/`) is served directly by Express
+- Frontend code uses proper ES module imports (`frontend/src/api.js`)
+- No lint, no tests, no CI by design
 
 ```bash
 opencode
